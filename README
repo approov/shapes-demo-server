@@ -1,8 +1,10 @@
 Install the requirements:
 
+```
 pip install -r requirements.txt
-
+```
 
 Run the server on your desktop using python:
-
-python runServer.py
+```
+python runserver.py
+```
