@@ -19,7 +19,7 @@ app = Flask(__name__)
 # Your Token Secret is generated for you when the Approov service is initialized
 # and it can be copied to your server code from your Approov Admin Portal
 # Set the secret as base64 encoded constant
-SECRET = bytes("+approov+secret+","utf-8")
+SECRET = bytes("+approov+secret+","ascii")
 
 shapes=["Circle","Triangle","Square","Rectangle"]
 
@@ -49,8 +49,6 @@ def verifyToken(token, clientIP):
 
 @app.route("/")
 def returnShape():
-  print("---------------------------------------------------------------------")
-  
   # Get the Approov Token from header
   token = request.headers.get("ApproovToken")
 
@@ -60,16 +58,14 @@ def returnShape():
 
   # Get the requesters IP Address as IPv6 for consistency
   clientIP = request.remote_addr
-  print(clientIP)
   try:
     clientIPBin = socket.inet_pton(socket.AF_INET6, clientIP)
   except:
     clientIPBin = socket.inet_pton(socket.AF_INET6, "::ffff:"+clientIP)
-  clientIPBinBase64 = base64.b64encode(clientIPBin)
+  clientIPBinBase64 = base64.b64encode(clientIPBin).decode("ascii")
 
   # Now verify the token
   tokenOK = verifyToken(token, clientIPBinBase64)
-
   if tokenOK != 1:
     # Token is bad
     abort(400)
