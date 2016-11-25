@@ -23,14 +23,20 @@ SECRET = bytes("+approov+secret+","ascii")
 
 shapes=["Circle","Triangle","Square","Rectangle"]
 
-def verifyToken(token, clientIP):
+def basicVerifyToken(token, clientIP):
   try:
     tokenContents = jwt.decode(token, base64.b64decode(SECRET), algorithms=['HS256'])
+    return tokenContents 
   except jwt.ExpiredSignatureError:
     # Signature has expired, token is bad
-    return 0
+    return None
   except:
     # Token could not be decoded, token is bad
+    return None
+
+def advancedVerifyToken(token, clientIP):
+  tokenContents = basicVerifyToken(token, clientIP)
+  if (tokenContents == None):
     return 0
 
   # Get IP from token contents if present then check it
@@ -48,7 +54,7 @@ def verifyToken(token, clientIP):
   return 1
 
 @app.route("/")
-def returnShape():
+def hello():
   # Get the Approov Token from header
   token = request.headers.get("ApproovToken")
 
@@ -65,7 +71,7 @@ def returnShape():
   clientIPBinBase64 = base64.b64encode(clientIPBin).decode("ascii")
 
   # Now verify the token
-  tokenOK = verifyToken(token, clientIPBinBase64)
+  tokenOK = advancedVerifyToken(token, clientIPBinBase64)
   if tokenOK != 1:
     # Token is bad
     abort(400)
